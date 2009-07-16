@@ -39,3 +39,5 @@ class AnalyticsMiddleware(object):
             attributes['user_id'] = hasttrrequest.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
 
         analytics.record("page_view", **attributes)
+
+        return response
