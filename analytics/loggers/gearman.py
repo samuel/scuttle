@@ -27,7 +27,7 @@ class WorkerHooks(object):
         import traceback
         traceback.print_exc(exc)
 
-    def complete(job, result):
+    def complete(self, job, result):
         pass
 
 class GearmanLoggerWorker(object):
