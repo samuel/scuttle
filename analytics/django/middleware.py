@@ -3,7 +3,7 @@ import time
 from analytics.django import analytics
 from django.http import get_host
 
-class MetricsMiddleware(object):
+class AnalyticsMiddleware(object):
     def process_request(self, request):
         self.start_time = time.time()
 
