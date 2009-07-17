@@ -41,6 +41,7 @@ class GearmanLoggerWorker(object):
 
     def analytics(self, job):
         record = json.loads(job.arg)
+        record = dict((str(k), v) for k, v in record.iteritems())
         for logger in self.loggers:
             logger.write(**record)
 
