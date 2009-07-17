@@ -23,7 +23,7 @@ def encode_value(value):
         else:
             typ = 'string'
     elif isinstance(value, bool):
-        value = str(value)
+        value = str(int(value))
         typ = 'bool'
     elif isinstance(value, (int, long)):
         value = str(value)
