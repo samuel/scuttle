@@ -1,7 +1,7 @@
 var Busket = new Object();
 Busket.record = function(event, key, attributes) {
 	// var busket_url = 'http://localhost:8001';
-	var busket_url = 'http://analytics.lefora.com'
+	var busket_url = 'http://analytics.lefora.com';
 
 	var path = busket_url + '/api/js/1/record/?key=' + key + "&event=" + escape(event);
 	// path = path.replace(/^https?:/, window.location.protocol);
@@ -29,9 +29,17 @@ Busket.record = function(event, key, attributes) {
 Busket.record_pageview = function(key, attributes) {
 	var referrer = (window.decodeURI)?window.decodeURI(document.referrer):document.referrer;
 	var url = (window.decodeURI)?window.decodeURI(document.URL):document.URL;
+	var domain_re = /^https?:\/\/([^\/]+)/;
 	attributes = attributes || {};
-	if (referrer)
+	if (referrer) {
 		attributes["referrer"] = referrer;
+		try {
+			var referrer_domain = referrer.match(domain_re)[1];
+			var url_domain = url.match(domain_re)[1];
+			if (referrer_domain == url_domain)
+				attributes["referrer_self.b"] = 1;
+		} catch(e) { }
+	}
 	attributes["url"] = url;
 	Busket.record("page_view", key, attributes);
 };

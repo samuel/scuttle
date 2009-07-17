@@ -71,7 +71,7 @@ class FileLogger(object):
         start_time = int(fp.read(15).split('\t', 1)[0])
         fp.close()
 
-        if size > self.rotate_size or time.time() - start_time >= self.rotate_period:
+        if size > 1024*1024 and size > self.rotate_size or time.time() - start_time >= self.rotate_period:
             if not os.path.exists(self.transfer_path):
                 os.mkdir(self.transfer_path)
 
