@@ -1,7 +1,7 @@
 var Busket = new Object();
 Busket.record = function(event, key, attributes) {
-	// var busket_url = 'http://localhost:8001';
 	var busket_url = 'http://analytics.lefora.com';
+	// var busket_url = 'http://www.makaha.loc:8001';
 
 	var path = busket_url + '/api/js/1/record/?key=' + key + "&event=" + escape(event);
 	// path = path.replace(/^https?:/, window.location.protocol);
@@ -38,6 +38,8 @@ Busket.record_pageview = function(key, attributes) {
 			var url_domain = url.match(domain_re)[1];
 			if (referrer_domain == url_domain)
 				attributes["referrer_self.b"] = 1;
+			else
+				attributes["referrer_self.b"] = 0;
 		} catch(e) { }
 	}
 	attributes["url"] = url;
