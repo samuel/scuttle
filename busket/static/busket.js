@@ -1,7 +1,7 @@
 var Busket = new Object();
 Busket.record = function(event, key, attributes) {
-	var busket_url = 'http://localhost:8001';
-	// var busket_url = 'http://analytics.lefora.com';
+	// var busket_url = 'http://localhost:8001';
+	var busket_url = 'http://analytics.lefora.com';
 
 	var path = busket_url + '/api/js/1/record/?key=' + key + "&event=" + escape(event);
 	// path = path.replace(/^https?:/, window.location.protocol);
