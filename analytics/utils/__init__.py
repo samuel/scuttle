@@ -3,14 +3,13 @@ import re
 import time
 
 IP_RE = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')
-# Modified from Django
-URL_RE = re.compile(
-    r'^(https?|ftp)://' # http:// or https:// or ftp://
-    r'(?:(?:[A-Z0-9]+(?:-*[A-Z0-9]+)*\.)+[A-Z]{2,6}|' #domain...
-    r'localhost|' #localhost...
-    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
-    r'(?::\d+)?' # optional port
-    r'(?:/?|/\S+)$', re.IGNORECASE)
+URL_RE = re.compile("^(https?|ftp)://")
+    # r'^(https?|ftp)://' # http:// or https:// or ftp://
+    # r'(?:(?:[A-Z0-9]+(?:-*[A-Z0-9]+)*\.)+[A-Z]{2,6}|' #domain...
+    # r'localhost|' #localhost...
+    # r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+    # r'(?::\d+)?' # optional port
+    # r'(?:/?|/\S+)$', re.IGNORECASE)
 
 def encode_value(value):
     if isinstance(value, basestring):

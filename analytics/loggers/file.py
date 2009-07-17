@@ -40,12 +40,14 @@ class FileLogger(object):
     def write(self, name, timestamp, attributes):
         self.open() # no-op if already opened
 
+        attrs = "&".join(
+            self.encode_attribute(n, v)
+            for n, v in attributes.iteritems())
+        
         self.fp.write("\t".join((
                 str(timestamp),
                 quote_plus(name),
-                "&".join(
-                    self.encode_attribute(n, v)
-                    for n, v in attributes.iteritems())
+                attrs,
             )) + "\n")
 
         if time.time() - self.last_rotate_check > 60*5:
