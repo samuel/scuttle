@@ -3,6 +3,8 @@ import time
 from analytics.django import analytics
 from django.http import get_host
 
+_HTML_TYPES = ('text/html', 'application/xhtml+xml')
+
 class AnalyticsMiddleware(object):
     def process_request(self, request):
         self.start_time = time.time()
@@ -36,7 +38,7 @@ class AnalyticsMiddleware(object):
         if getattr(request, 'user', None) and request.user.is_authenticated():
             attributes['user_id'] = str(request.user.id)
         else:
-            attributes['user_id'] = hasttrrequest.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
+            attributes['user_id'] = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
 
         analytics.record("page_view", **attributes)
 
