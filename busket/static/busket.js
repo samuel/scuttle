@@ -32,14 +32,13 @@ Busket.record_pageview = function(key, attributes) {
 	var domain_re = /^https?:\/\/([^\/]+)/;
 	attributes = attributes || {};
 	if (referrer) {
-		attributes["referrer"] = referrer;
 		try {
 			var referrer_domain = referrer.match(domain_re)[1];
 			var url_domain = url.match(domain_re)[1];
 			if (referrer_domain == url_domain)
-				attributes["referrer_self.b"] = 1;
+				attributes["referrer_self"] = referrer;
 			else
-				attributes["referrer_self.b"] = 0;
+				attributes["referrer"] = referrer;
 		} catch(e) { }
 	}
 	attributes["url"] = url;
