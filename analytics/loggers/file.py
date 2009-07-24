@@ -78,7 +78,7 @@ class FileLogger(object):
                 os.mkdir(self.transfer_path)
 
             unique = md5("%f%d%d" % (time.time(), start_time, size)).hexdigest()
-            name = "%s_%d_%d.log" % (unique, start_time, time.time())
+            name = "%d_%d_%s.log" % (start_time, time.time(), unique)
 
             os.rename(self.current_log_path, os.path.join(self.transfer_path, name))
 

@@ -8,7 +8,8 @@ Busket.record = function(event, key, attributes) {
 
 	if (attributes) {
 		for(var k in attributes) {
-			path += "&" + k + "=" + escape(attributes[k]);
+			if(obj.hasOwnProperty(k))
+				path += "&" + k + "=" + escape(attributes[k]);
 		}
 	}
 
