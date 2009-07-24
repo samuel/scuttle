@@ -37,7 +37,7 @@ class FileLogger(object):
             self.fp.close()
             self.fp = None
 
-    def write(self, name, timestamp, attributes):
+    def write(self, event, timestamp, attributes):
         self.open() # no-op if already opened
 
         attrs = "&".join(
@@ -46,7 +46,7 @@ class FileLogger(object):
         
         self.fp.write("\t".join((
                 str(timestamp),
-                quote_plus(name),
+                quote_plus(event),
                 attrs,
             )) + "\n")
 

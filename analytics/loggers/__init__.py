@@ -1,3 +1,3 @@
 class TestLogger(object):
-    def write(self, name, timestamp, attributes):
-        print "METRICS:", timestamp, name, attributes
+    def write(self, event, timestamp, attributes):
+        print "METRICS:", timestamp, event, attributes

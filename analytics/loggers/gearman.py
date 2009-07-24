@@ -15,8 +15,8 @@ class GearmanLogger(object):
         else:
             self.conn = GearmanClient(servers)
 
-    def write(self, name, timestamp, attributes):
-        record = json.dumps(dict(name=name, timestamp=timestamp, attributes=attributes))
+    def write(self, event, timestamp, attributes):
+        record = json.dumps(dict(event=event, timestamp=timestamp, attributes=attributes))
         self.conn.dispatch_background_task("analytics", record)
 
 class WorkerHooks(object):
