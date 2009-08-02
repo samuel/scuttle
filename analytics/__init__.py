@@ -22,5 +22,5 @@ class Analytics(object):
         self.logger.write(
             event = event,
             timestamp = int(timestamp or time.time()),
-            attributes = attributes,
+            attributes = attrs,
         )

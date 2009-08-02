@@ -15,7 +15,7 @@ def encode_value(value):
     elif isinstance(value, (int, long)):
         value = str(value)
     elif isinstance(value, float):
-        value = "%.3f" % value
+        value = "%.5f" % value
     elif isinstance(value, datetime.timedelta):
         value = str(int(value.days*24*60*60 + value.seconds))
     elif isinstance(value, datetime.datetime):
