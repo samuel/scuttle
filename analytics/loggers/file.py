@@ -6,17 +6,26 @@ from hashlib import md5
 
 from analytics.utils import encode_value
 
-TYPE_MAP = dict(
-    float = 'f',
-    integer = 'i',
-    string = 's',
-    bool = 'b',
-    duration = 'd',
-    timestamp = 't',
-    url = 'u',
-    tags = 'k',
-    ip_address = 'a',
-)
+def encode_value(value):
+    if isinstance(value, basestring):
+        if isinstance(value, unicode):
+            value = value.encode('utf-8')
+    elif isinstance(value, bool):
+        value = str(int(value))
+    elif isinstance(value, (int, long)):
+        value = str(value)
+    elif isinstance(value, float):
+        value = "%.3f" % value
+    elif isinstance(value, datetime.timedelta):
+        value = str(int(value.days*24*60*60 + value.seconds))
+    elif isinstance(value, datetime.datetime):
+        value = str(int(time.mktime(value.timetuple())))
+    elif isinstance(value, (list, tuple)):
+        value = ",".join(value)
+    else:
+        raise TypeError("Unsupported attribute value of type %s" % type(value))
+
+    return value
 
 class FileLogger(object):
     def __init__(self, path, rotate_period=30*60, rotate_size=50*1024*1024):
@@ -40,11 +49,11 @@ class FileLogger(object):
     def write(self, event, timestamp, attributes):
         self.open() # no-op if already opened
 
-        attrs = "&".join(
-            self.encode_attribute(n, v)
+        attrs = "\x02".join(
+            "%s\x03%s" % (n, encode_value(v).replace('\n', '\\n').replace('\x03', '?').replace('\x02', '?').replace('\x01', '?'))
             for n, v in attributes.iteritems())
-        
-        self.fp.write("\t".join((
+
+        self.fp.write("\x01".join((
                 str(timestamp),
                 quote_plus(event),
                 attrs,
@@ -70,7 +79,7 @@ class FileLogger(object):
         self.close()
 
         fp = open(self.current_log_path, "r")
-        start_time = int(fp.read(15).split('\t', 1)[0])
+        start_time = int(fp.read(15).split('\x01', 1)[0])
         fp.close()
 
         if size > 1024*1024 and size > self.rotate_size or time.time() - start_time >= self.rotate_period:
@@ -81,7 +90,3 @@ class FileLogger(object):
             name = "%d_%d_%s.log" % (start_time, time.time(), unique)
 
             os.rename(self.current_log_path, os.path.join(self.transfer_path, name))
-
-    def encode_attribute(self, name, value):
-        value, typ = encode_value(value)
-        return "%s.%s=%s" % (quote_plus(name), TYPE_MAP[typ], quote_plus(value))
