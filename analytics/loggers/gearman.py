@@ -1,4 +1,6 @@
 
+import datetime
+import time
 try:
     import json
 except ImportError:
@@ -16,8 +18,21 @@ class GearmanLogger(object):
             self.conn = GearmanClient(servers)
 
     def write(self, event, timestamp, attributes):
+        attributes = dict((k, self._encode(v)) for k, v in attributes.iteritems())
         record = json.dumps(dict(event=event, timestamp=timestamp, attributes=attributes))
         self.conn.dispatch_background_task("analytics", record)
+
+    def _encode(self, value):
+        if isinstance(value, (basestring, bool, int, long, float, list, tuple)):
+            pass
+        elif isinstance(value, datetime.timedelta):
+            value = str(int(value.days*24*60*60 + value.seconds))
+        elif isinstance(value, datetime.datetime):
+            value = str(int(time.mktime(value.timetuple())))
+        else:
+            raise TypeError("Unsupported attribute value of type %s" % type(value))
+
+        return value
 
 class WorkerHooks(object):
     def start(self, job):
