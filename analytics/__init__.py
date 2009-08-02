@@ -6,6 +6,9 @@ class Analytics(object):
         self.global_attributes = global_attributes or {}
         self.logger = logger
 
+    def clear_global_attributes(self):
+        self.global_attributes = {}
+
     def set_global_attributes(self, **attributes):
         self.global_attributes.update(attributes)
 
