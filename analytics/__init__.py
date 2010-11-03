@@ -21,6 +21,6 @@ class Analytics(object):
         attrs = dict((k, v) for k, v in attrs.iteritems() if v is not None)
         self.logger.write(
             event = event,
-            timestamp = int(timestamp or time.time()),
+            timestamp = timestamp or time.time(),
             attributes = attrs,
         )
