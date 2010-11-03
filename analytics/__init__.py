@@ -12,7 +12,7 @@ class Analytics(object):
     def set_global_attributes(self, **attributes):
         self.global_attributes.update(attributes)
 
-    def record(self, event, timestamp=None, **attributes):
+    def record(self, event, attributes, timestamp=None):
         if self.global_attributes:
             attrs = self.global_attributes.copy()
             attrs.update(attributes)
