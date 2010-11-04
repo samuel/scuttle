@@ -59,7 +59,7 @@ class HiveFormatter(object):
                 n, encode_value(v).replace('\n', '\\n').replace('\x03', '?').replace('\x02', '?').replace('\x01', '?')
             ) for n, v in attributes.iteritems())
         return "\x01".join((
-            "%.3f" % timestamp,
+            "%.3f" % timestamp if isinstance(timestamp, float) else str(timestamp),
             quote_plus(event),
             attrs,
         ))
