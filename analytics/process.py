@@ -139,13 +139,13 @@ class ProcessLogs(object):
                     timestamp = int(timestamp)
                 self.write_event(event, timestamp, attributes)
         os.rename(working_filename, os.path.join(self.trash_path, filename))
-        self.close_all_output_files()
     
     def run(self):
         for filename in self.input_files:
             path = os.path.join(self.input_path, filename)
             if os.path.isfile(path):
                 self.process_file(filename, path)
+        self.close_all_output_files()
         
         s3_uploader = S3Uploader(self.aws_key, self.aws_secret_key)
         
