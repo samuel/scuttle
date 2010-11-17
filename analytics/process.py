@@ -94,7 +94,7 @@ class ProcessLogs(object):
     
     def get_optout_file(self, event, timestamp):
         date = datetime.datetime.utcfromtimestamp(timestamp)
-        base_filename = "ev=%s/dt=%s" % (event, date.strftime("%Y-%m-%d"))
+        base_filename = "ev=%s/dt=%s/hr=%s" % (event, date.strftime("%Y-%m-%d"), date.strftime("%H00"))
         
         if base_filename in self.output_files:
             return self.output_files[base_filename]
