@@ -147,39 +147,39 @@ class ProcessLogs(object):
                 self.process_file(filename, path)
         self.close_all_output_files()
         
-        # s3_uploader = S3Uploader(self.aws_key, self.aws_secret_key)
-        # 
-        # for root, dirs, files in os.walk(self.output_path):
-        #     to_remove = []
-        #     for d in dirs:
-        #         full = os.path.join(root, d)
-        #         if d[0] == '.':
-        #             to_remove.append(d)
-        #     for d in to_remove:
-        #         dirs.remove(d)
-        #     
-        #     files.sort()
-        #     for filename in files:
-        #         if filename[0] == '.':
-        #             continue
-        #         path = os.path.join(root, filename)
-        #         
-        #         if not filename.endswith(".gz"):
-        #             gzip_name = path+".gz"
-        #             with open(path, "rb") as infp:
-        #                 with closing(gzip.open(gzip_name, "wb")) as outfp:
-        #                     while True:
-        #                         block = infp.read(1024*128)
-        #                         if not block:
-        #                             break
-        #                         outfp.write(block)
-        #             os.unlink(path)
-        #         else:
-        #             gzip_name = path
-        # 
-        #         key = gzip_name[len(self.output_path)+1:]
-        #         s3_uploader.upload(gzip_name, self.aws_bucket, key)
-        #         os.unlink(gzip_name)
+        s3_uploader = S3Uploader(self.aws_key, self.aws_secret_key)
+        
+        for root, dirs, files in os.walk(self.output_path):
+            to_remove = []
+            for d in dirs:
+                full = os.path.join(root, d)
+                if d[0] == '.':
+                    to_remove.append(d)
+            for d in to_remove:
+                dirs.remove(d)
+            
+            files.sort()
+            for filename in files:
+                if filename[0] == '.':
+                    continue
+                path = os.path.join(root, filename)
+                
+                if not filename.endswith(".gz"):
+                    gzip_name = path+".gz"
+                    with open(path, "rb") as infp:
+                        with closing(gzip.open(gzip_name, "wb")) as outfp:
+                            while True:
+                                block = infp.read(1024*128)
+                                if not block:
+                                    break
+                                outfp.write(block)
+                    os.unlink(path)
+                else:
+                    gzip_name = path
+        
+                key = gzip_name[len(self.output_path)+1:]
+                s3_uploader.upload(gzip_name, self.aws_bucket, key)
+                os.unlink(gzip_name)
 
 if __name__ == "__main__":
     input_path = sys.argv[1]
