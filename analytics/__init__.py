@@ -2,9 +2,9 @@
 import time
 
 class Analytics(object):
-    def __init__(self, logger, global_attributes=None):
+    def __init__(self, loggers, global_attributes=None):
         self.global_attributes = global_attributes or {}
-        self.logger = logger
+        self.loggers = loggers if isinstance(loggers, (list, tuple)) else [loggers]
 
     def clear_global_attributes(self):
         self.global_attributes = {}
@@ -12,15 +12,21 @@ class Analytics(object):
     def set_global_attributes(self, **attributes):
         self.global_attributes.update(attributes)
 
-    def record(self, event, attributes, timestamp=None):
+    def add_logger(self, logger):
+        self.loggers.append(logger)
+
+    def record(self, event, attributes=None, timestamp=None):
+        attributes = attributes or {}
+
         if self.global_attributes:
             attrs = self.global_attributes.copy()
             attrs.update(attributes)
         else:
             attrs = attributes
         attrs = dict((k, v) for k, v in attrs.iteritems() if v is not None)
-        self.logger.write(
-            event = event,
-            timestamp = timestamp or time.time(),
-            attributes = attrs,
-        )
+        for log in self.loggers:
+            log.write(
+                event = event,
+                timestamp = timestamp or time.time(),
+                attributes = attrs,
+            )
