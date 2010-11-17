@@ -109,6 +109,7 @@ class RotatingFileLogger(FileLogger):
         self.rotate_period = rotate_period
         self.rotate_size = rotate_size
         self.last_rotate_check = 0
+        self.start_time = 0
         if not os.path.exists(path):
             try:
                 os.makedirs(path)
@@ -118,7 +119,8 @@ class RotatingFileLogger(FileLogger):
     
     def open(self):
         if not self.stream:
-            filename = "%d_%d.log" % (time.time(), os.getpid())
+            self.start_time = time.time()
+            filename = "%d_%d.log" % (self.start_time, os.getpid())
             self.path = os.path.join(self.base_path, filename)
             super(RotatingFileLogger, self).open()
             stat = os.stat(self.path)
@@ -131,6 +133,7 @@ class RotatingFileLogger(FileLogger):
             self.dev = self.ino = -1
             self.path = None
             self.open_ts = None
+            self.start_time = 0
     
     def write(self, event, timestamp, attributes):
         # See if the file changed out from under us
@@ -154,5 +157,5 @@ class RotatingFileLogger(FileLogger):
         self.flush()
         
         size = os.path.getsize(self.path)
-        if size > 1024*1024 and (size > self.rotate_size or time.time() - start_time >= self.rotate_period):
+        if size > 1024*1024 and (size > self.rotate_size or time.time() - self.start_time >= self.rotate_period):
             return True
