@@ -40,7 +40,7 @@ class JSONFormatter(object):
             ts = timestamp,
             attr = attributes,
         ), separators=(',', ':'), default=self._default)
-
+    
     def _default(self, obj):
         if isinstance(obj, datetime.timedelta):
             return str(int(obj.days*24*60*60 + obj.seconds))
@@ -51,6 +51,14 @@ class JSONFormatter(object):
         elif isinstance(o, datetime.time):
             return obj.strftime(self.TIME_FORMAT)
         raise TypeError("[JSONFormatter] Unsupported attribute value of type %s" % type(value))
+
+class StandardJSONFormatter(JSONFormatter):
+    def __call__(self, event, timestamp, attributes):
+        return "\t".join((
+            ("%.3f" % timestamp) if isinstance(timestamp, float) else str(timestamp),
+            event,
+            json.dumps(attributes, separators=(',', ':'), default=self._default),
+        ))
 
 class HiveFormatter(object):
     def __call__(self, event, timestamp, attributes):

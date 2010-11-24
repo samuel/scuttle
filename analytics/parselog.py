@@ -8,14 +8,14 @@ from optparse import OptionParser
 
 from analytics import Analytics
 from analytics.loggers import RotatingFileLogger
-from analytics.loggers.file import HiveFormatter
+from analytics.loggers.file import StandardJSONFormatter
 from analytics.parsers import PARSERS
 
 class ParseLog(object):
     def __init__(self, event, filename, outpath, parser, forever=False):
         self.event = event
         self.filename = filename
-        self.formatter = HiveFormatter()
+        self.formatter = StandardJSONFormatter()
         self.logger = RotatingFileLogger(outpath, self.formatter)
         self.analytics = Analytics(self.logger)
         self.parser = parser
@@ -23,15 +23,15 @@ class ParseLog(object):
 
     def run(self):
         stat = os.stat(self.filename)
-
+        
         fp = None
-
+        
         while True:
             if not fp:
                 if not os.path.exists(self.filename):
                     time.sleep(5)
                     continue
-
+                
                 try:
                     if self.filename.endswith('.gz'):
                         fp = gzip.GzipFile(self.filename, "r")

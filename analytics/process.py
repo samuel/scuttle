@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 
-"""
-Given a directory of parsed log files, merge them into the final logs.
-
-<input_path>/filename.log -> <output_path>/event/year/month/day/log#####
-"""
-
 from __future__ import with_statement
 
 import base64
@@ -92,7 +86,7 @@ class ProcessLogs(object):
             fp.close()
         self.output_files = {}
     
-    def get_optout_file(self, event, timestamp):
+    def get_output_file(self, event, timestamp):
         date = datetime.datetime.utcfromtimestamp(timestamp)
         base_filename = "ev=%s/dt=%s/hr=%s" % (event, date.strftime("%Y-%m-%d"), date.strftime("%H00"))
         
@@ -115,8 +109,8 @@ class ProcessLogs(object):
         return base_filename, fp
     
     def write_event(self, event, timestamp, attributes):
-        base_filename, fp = self.get_optout_file(event, timestamp)
-        fp.write("%s\x01%s\n" % ("%.3f" % timestamp if isinstance(timestamp, float) else timestamp, attributes))
+        base_filename, fp = self.get_output_file(event, timestamp)
+        fp.write("%s\t%s\n" % (("%.3f" % timestamp) if isinstance(timestamp, float) else timestamp, attributes))
         if fp.tell() > self.max_file_size - 1024:
             fp.close()
             del self.output_files[base_filename]
@@ -129,7 +123,7 @@ class ProcessLogs(object):
             for line_num, line in enumerate(fp):
                 line = line.strip()
                 try:
-                    timestamp, event, attributes = line.split('\x01')
+                    timestamp, event, attributes = line.split('\t', 2)
                 except ValueError:
                     sys.stderr.write("Failed line %d in file %s: %s\n" % (line_num, filename, repr(line)))
                     continue
