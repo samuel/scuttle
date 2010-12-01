@@ -34,12 +34,9 @@ class JSONFormatter(object):
     TIME_FORMAT = "%H:%M:%S"
     DATETIME_FORMAT = "%s %s" % (DATE_FORMAT, TIME_FORMAT)
 
-    def __call__(self, event, timestamp, attributes):
-        return json.dumps(dict(
-            event = event,
-            ts = timestamp,
-            attr = attributes,
-        ), separators=(',', ':'), default=self._default)
+    def __call__(self, timestamp, attributes):
+        attributes['ts'] = timestamp
+        return json.dumps(attributes, separators=(',', ':'), default=self._default)
     
     def _default(self, obj):
         if isinstance(obj, datetime.timedelta):
@@ -52,25 +49,12 @@ class JSONFormatter(object):
             return obj.strftime(self.TIME_FORMAT)
         raise TypeError("[JSONFormatter] Unsupported attribute value of type %s" % type(value))
 
-class StandardJSONFormatter(JSONFormatter):
-    def __call__(self, event, timestamp, attributes):
-        return "\t".join((
-            ("%.3f" % timestamp) if isinstance(timestamp, float) else str(timestamp),
-            event,
-            json.dumps(attributes, separators=(',', ':'), default=self._default),
-        ))
-
 class HiveFormatter(object):
-    def __call__(self, event, timestamp, attributes):
-        attrs = "\x02".join(
+    def __call__(self, timestamp, attributes):
+        return "%s\x01%s" % (int(timestamp), "\x02".join(
             "%s\x03%s" % (
                 n, encode_value(v).replace('\n', '\\n').replace('\x03', '?').replace('\x02', '?').replace('\x01', '?')
-            ) for n, v in attributes.iteritems())
-        return "\x01".join((
-            "%.3f" % timestamp if isinstance(timestamp, float) else str(timestamp),
-            quote_plus(event),
-            attrs,
-        ))
+            ) for n, v in attributes.iteritems()))
 
 class StreamLogger(object):
     def __init__(self, stream, formatter):
@@ -88,7 +72,7 @@ class StreamLogger(object):
             self.stream.flush()
 
     def write(self, event, timestamp, attributes):
-        self.stream.write(self.formatter(event, timestamp, attributes) + "\n")
+        self.stream.write("%d\t%s\t%s\n" % (int(timestamp), event, self.formatter(timestamp, attributes)))
 
 class FileLogger(StreamLogger):
     def __init__(self, path, formatter):

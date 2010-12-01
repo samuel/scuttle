@@ -88,13 +88,14 @@ class ProcessLogs(object):
     
     def get_output_file(self, event, timestamp):
         date = datetime.datetime.utcfromtimestamp(timestamp)
-        base_filename = "ev=%s/dt=%s/hr=%s" % (event, date.strftime("%Y-%m-%d"), date.strftime("%H00"))
+        base_filename = "%s/%s/%s-" % (event, date.strftime("%Y-%m-%d"), date.strftime("%H"))
         
         if base_filename in self.output_files:
             return self.output_files[base_filename]
         
-        base_path = os.path.join(self.output_path, base_filename)
+        base_name = os.path.join(self.output_path, base_filename)
         
+        base_path = base_name.rsplit('/', 1)[0]
         if not os.path.exists(base_path):
             try:
                 os.makedirs(base_path)
@@ -102,15 +103,15 @@ class ProcessLogs(object):
                 if exc.errno != 17: # If the error isn't "file exists" then reraise
                     raise
         
-        filename = os.path.join(base_path, "%d-%s.log" % (timestamp, unique()))
+        filename = base_name + ("%d-%s.log" % (timestamp, unique()))
         fp = open(filename, "a")
         self.output_files[base_filename] = (base_filename, fp)
         
         return base_filename, fp
     
-    def write_event(self, event, timestamp, attributes):
+    def write_event(self, event, timestamp, data):
         base_filename, fp = self.get_output_file(event, timestamp)
-        fp.write("%s\t%s\n" % (("%.3f" % timestamp) if isinstance(timestamp, float) else timestamp, attributes))
+        fp.write(data+"\n")
         if fp.tell() > self.max_file_size - 1024:
             fp.close()
             del self.output_files[base_filename]
@@ -123,7 +124,7 @@ class ProcessLogs(object):
             for line_num, line in enumerate(fp):
                 line = line.strip()
                 try:
-                    timestamp, event, attributes = line.split('\t', 2)
+                    timestamp, event, data = line.split('\t', 2)
                 except ValueError:
                     sys.stderr.write("Failed line %d in file %s: %s\n" % (line_num, filename, repr(line)))
                     continue
@@ -131,7 +132,7 @@ class ProcessLogs(object):
                     timestamp = float(timestamp)
                 else:
                     timestamp = int(timestamp)
-                self.write_event(event, timestamp, attributes)
+                self.write_event(event, timestamp, data)
         os.rename(working_filename, os.path.join(self.trash_path, filename))
     
     def run(self):
@@ -170,7 +171,7 @@ class ProcessLogs(object):
                     os.unlink(path)
                 else:
                     gzip_name = path
-        
+                
                 key = gzip_name[len(self.output_path)+1:]
                 s3_uploader.upload(gzip_name, self.aws_bucket, key)
                 os.unlink(gzip_name)
