@@ -69,6 +69,8 @@ class ProcessLogs(object):
         self.input_files = [f for f in os.listdir(input_path) if f.endswith('.log')]
         self.input_files.sort()
         self.output_files = {}
+        self.output_files_list = []
+        self.max_output_files = None
         self.max_file_size = 128*1024*1024
         self.output_path = os.path.join(self.input_path, "processed")
         self.working_path = os.path.join(self.input_path, "working")
@@ -93,6 +95,11 @@ class ProcessLogs(object):
         if base_filename in self.output_files:
             return self.output_files[base_filename]
         
+        if self.max_output_files and len(self.output_files_list) > self.max_output_files:
+            t = self.output_files_list.pop()
+            fp = self.output_files.pop(t)[1]
+            fp.close()
+        
         base_name = os.path.join(self.output_path, base_filename)
         
         base_path = base_name.rsplit('/', 1)[0]
@@ -106,6 +113,7 @@ class ProcessLogs(object):
         filename = base_name + ("%d-%s.log" % (timestamp, unique()))
         fp = open(filename, "a")
         self.output_files[base_filename] = (base_filename, fp)
+        self.output_files_list.insert(0, base_filename)
         
         return base_filename, fp
     
@@ -159,7 +167,7 @@ class ProcessLogs(object):
                     continue
                 path = os.path.join(root, filename)
                 
-                if not filename.endswith(".gz"):
+                if not filename.endswith(".gz") and os.path.getsize(path) > 512:
                     gzip_name = path+".gz"
                     with open(path, "rb") as infp:
                         with closing(gzip.open(gzip_name, "wb")) as outfp:
