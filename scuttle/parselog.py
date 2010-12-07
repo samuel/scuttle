@@ -6,10 +6,10 @@ import os
 import time
 from optparse import OptionParser
 
-from analytics import Analytics
-from analytics.loggers import RotatingFileLogger
-from analytics.loggers.file import StandardJSONFormatter
-from analytics.parsers import PARSERS
+from scuttle import Analytics
+from scuttle.loggers import RotatingFileLogger
+from scuttle.loggers.file import StandardJSONFormatter
+from scuttle.parsers import PARSERS
 
 class ParseLog(object):
     def __init__(self, event, filename, outpath, parser, forever=False):

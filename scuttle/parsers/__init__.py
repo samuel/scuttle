@@ -1,5 +1,5 @@
 
-from analytics.parsers.accesslog import AccessLogParser
+from scuttle.parsers.accesslog import AccessLogParser
 
 PARSERS = {
     'accesslog': AccessLogParser(),
