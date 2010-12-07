@@ -1,6 +1,8 @@
 
 import time
 
+from scuttle.version import VERSION as __version__
+
 class Analytics(object):
     def __init__(self, loggers, global_attributes=None):
         self.global_attributes = global_attributes or {}
