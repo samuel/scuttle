@@ -143,6 +143,14 @@ class ProcessLogs(object):
                 self.write_event(event, timestamp, data)
         os.rename(working_filename, os.path.join(self.trash_path, filename))
     
+    def empty_trash(self, max_age=3*24*60*60):
+        now = time.time()
+        for fname in os.listdir(self.trash_path):
+            path = os.path.join(self.trash_path, fname)
+            st = os.stat(path)
+            if now - st.st_ctime > max_age:
+                os.unlink(path)
+    
     def run(self):
         for filename in self.input_files:
             path = os.path.join(self.input_path, filename)
@@ -183,6 +191,8 @@ class ProcessLogs(object):
                 key = gzip_name[len(self.output_path)+1:]
                 s3_uploader.upload(gzip_name, self.aws_bucket, key)
                 os.unlink(gzip_name)
+
+        self.empty_trash()
 
 if __name__ == "__main__":
     input_path = sys.argv[1]
