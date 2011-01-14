@@ -149,6 +149,10 @@ class RotatingFileLogger(FileLogger):
         
         self.flush()
         
-        size = os.path.getsize(self.path)
+        try:
+            size = os.path.getsize(self.path)
+        except OSError:
+            return True
+
         if size > 1024*1024 and (size > self.rotate_size or time.time() - self.start_time >= self.rotate_period):
             return True
