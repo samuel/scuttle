@@ -11,16 +11,14 @@ class KombuLogger(object):
     def write(self, event, timestamp, attributes):
         self.producer.publish({"event": event, "ts": timestamp, "attr": attributes}, routing_key=event)
 
-class KombuWorker(object):
-    def __init__(self, logger, host="localhost", user="guest", password="guest", vhost="/", exchange="analytics", queue="analytics.logger"):
+class KombuConsumer(KombuLogger):
+    def __init__(self, logger, eventspec="#", queue="analytics.logger", **kwargs):
+        super(KombuConsumer, self).__init__(**kwargs)
         self.logger = logger
-        self.connection = BrokerConnection(host, user, password, vhost)
-        self.channel = self.connection.channel()
-        self.exchange = Exchange(exchange, "topic", durable=True, auto_delete=False)
-        self.queue = Queue(queue, exchange=self.exchange, routing_key="#", auto_delete=False, durable=True, exclusive=False)
+        self.queue = Queue(queue, exchange=self.exchange, routing_key=eventspec, auto_delete=False, durable=True, exclusive=False)
     
-    def work(self):
-        consumer = Consumer(self.channel, self.queue, callbacks=[self._msg_callback])
+    def run(self):
+        consumer = Consumer(self.channel, self.queue, callbacks=[self.handle_message])
         consumer.consume()
         while True:
             try:
@@ -28,6 +26,6 @@ class KombuWorker(object):
             except KeyboardInterrupt:
                 return
     
-    def _msg_callback(self, body, message):
+    def handle_message(self, body, message):
         self.logger.write(body["event"], body["ts"], body["attr"])
         message.ack()
